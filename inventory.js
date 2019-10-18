@@ -10,41 +10,50 @@ export default class Inventory {
     }
 
     registerProduct(product) {
-        if (this._start === null) {
-            this._start = product;
-        } else if (this._end === null) {
-            if (product.code > this._start.code) {
-                this._start.next = product;
-                this._end = product;
-                this._end.previous = this._start;
-            } else {
-                this._end = this._start;
+        if (this._searchRegisteredProduct(product.code, this._start) == null) {
+            if (this._start === null) {
                 this._start = product;
-                this._start.next = this._end;
-                this._end.previous = this._start;
+            } else if (this._end === null) {
+                if (product.code > this._start.code) {
+                    this._start.next = product;
+                    this._end = product;
+                    this._end.previous = this._start;
+                } else {
+                    this._end = this._start;
+                    this._start = product;
+                    this._start.next = this._end;
+                    this._end.previous = this._start;
+                }
+            } else {
+                this._InsertProductInPosition(product);
             }
-        } else {
-            this._InsertProductInPosition(product);
-        }
-
+        } 
     }
 
     _InsertProductInPosition(product) {
         let previousProduct = this._searchForPlaceToInsert(product.code, this._start);
         if (previousProduct == this._start) {
-            this._start.previous = product;
-            product.next = this._start;
-            this._start = product;
+            if (previousProduct.code < product.code) {
+                this._InsertProductBetween(previousProduct, product);
+            } else {
+                this._start.previous = product;
+                product.next = this._start;
+                this._start = product;
+            }
         } else if (previousProduct == this._end) {
             this._end.next = product;
             product.previous = this._end;
             this._end = product;
         } else {
-            product.next = previousProduct.next;
-            product.previous = previousProduct.next.previous;
-            previousProduct.next.previous = product;
-            previousProduct.next = product;
+            this._InsertProductBetween(previousProduct, product);
         }
+    }
+
+    _InsertProductBetween(previousProduct, product) {
+        product.next = previousProduct.next;
+        product.previous = previousProduct.next.previous;
+        previousProduct.next.previous = product;
+        previousProduct.next = product;
     }
 
     _searchForPlaceToInsert(code, start) {
