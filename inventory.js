@@ -27,14 +27,14 @@ export default class Inventory {
             } else {
                 this._InsertProductInPosition(product);
             }
-        } 
+        }
     }
 
     _InsertProductInPosition(product) {
         let previousProduct = this._searchForPlaceToInsert(product.code, this._start);
         if (previousProduct == this._start) {
             if (previousProduct.code < product.code) {
-                this._InsertProductBetween(previousProduct, product);
+                this._insertProductBetween(previousProduct, product);
             } else {
                 this._start.previous = product;
                 product.next = this._start;
@@ -45,11 +45,11 @@ export default class Inventory {
             product.previous = this._end;
             this._end = product;
         } else {
-            this._InsertProductBetween(previousProduct, product);
+            this._insertProductBetween(previousProduct, product);
         }
     }
 
-    _InsertProductBetween(previousProduct, product) {
+    _insertProductBetween(previousProduct, product) {
         product.next = previousProduct.next;
         product.previous = previousProduct.next.previous;
         previousProduct.next.previous = product;
@@ -91,9 +91,16 @@ export default class Inventory {
     deleteProduct(code) {
         if (this._start.code == code) {
             this._start = this._start.next;
+            if (this._start != null) {
+                this._start.previous = null;
+            }
+            if (this._start == this._end) {
+                this._end = null;
+            }
         } else {
             this._findProductToDelete(code);
         }
+        //console.log(this._start, `final: ${this._end}`);
     }
 
     _findProductToDelete(code) {
@@ -103,8 +110,10 @@ export default class Inventory {
         } else {
             if (product == this._end) {
                 if (product.previous == this._start) {
+                    console.log("B");
                     this._start.next = null;
                     this._end = null;
+                    console.log(this._start);
                 } else {
                     this._end = product.previous;
                     this._end.next = null;
